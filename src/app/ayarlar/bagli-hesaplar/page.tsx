@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
+import { SettingsNav } from "@/components/settings-nav";
 import { AuthForm } from "@/components/auth-form";
 import { requireUser } from "@/server/authorization";
 import { createCsrfToken } from "@/server/csrf";
@@ -19,6 +20,7 @@ export default async function Page() {
       title="Bağlı hesaplar"
       description="Google ve GitHub giriş yöntemlerinizi yönetin."
     >
+      <SettingsNav />
       {(["google", "github"] as const).map((provider) => (
         <section className="settingsCard" key={provider}>
           <h2>{provider === "google" ? "Google" : "GitHub"}</h2>

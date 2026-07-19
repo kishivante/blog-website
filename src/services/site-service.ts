@@ -21,6 +21,7 @@ const fallbackTheme = {
   shadowIntensity: 24,
   headingFont: "Arial, Helvetica, sans-serif",
   bodyFont: "Arial, Helvetica, sans-serif",
+  baseFontSize: 16,
 };
 
 export async function getSitePresentation() {
@@ -60,5 +61,6 @@ export function themeStyle(theme: typeof fallbackTheme): CSSProperties {
     "--shadow-strength": `${theme.shadowIntensity / 100}`,
     "--font-heading": theme.headingFont,
     "--font-body": theme.bodyFont,
+    "--font-size-base": `${theme.baseFontSize}px`,
   } as CSSProperties;
 }

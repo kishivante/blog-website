@@ -4,14 +4,21 @@ import { saveSiteSettingsAction } from "@/server/actions/admin-actions";
 import { requirePermission } from "@/server/authorization";
 import { createCsrfToken } from "@/server/csrf";
 import { db } from "@/server/db";
+import {
+  MAX_BASE_FONT_SIZE,
+  MIN_BASE_FONT_SIZE,
+  SITE_FONT_FAMILIES,
+} from "@/lib/site-typography";
 
 export default async function SiteSettingsPage() {
   await requirePermission("settings.manage");
-  const [site, csrf] = await Promise.all([
+  const [site, theme, csrf] = await Promise.all([
     db.siteSetting.findUnique({ where: { id: "default" } }),
+    db.themeSetting.findUnique({ where: { id: "default" } }),
     createCsrfToken(),
   ]);
   if (!site) throw new Error("Site ayarları bulunamadı.");
+  if (!theme) throw new Error("Tema ayarları bulunamadı.");
   const social =
     site.socialLinks &&
     typeof site.socialLinks === "object" &&
@@ -35,6 +42,34 @@ export default async function SiteSettingsPage() {
         submitLabel="Site ayarlarını kaydet"
         encType="multipart/form-data"
       >
+        <fieldset>
+          <legend>Tipografi</legend>
+          <label>
+            Site yazı tipi
+            <select name="siteFont" defaultValue={theme.bodyFont}>
+              {SITE_FONT_FAMILIES.map((font) => (
+                <option key={font} value={font}>
+                  {font.startsWith("Arial")
+                    ? "Arial"
+                    : font.startsWith("Inter")
+                      ? "Inter"
+                      : "Georgia"}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Temel yazı boyutu (px)
+            <input
+              name="baseFontSize"
+              type="number"
+              min={MIN_BASE_FONT_SIZE}
+              max={MAX_BASE_FONT_SIZE}
+              defaultValue={theme.baseFontSize}
+              required
+            />
+          </label>
+        </fieldset>
         <label>
           Marka adı
           <input name="brandName" defaultValue={site.brandName} required />

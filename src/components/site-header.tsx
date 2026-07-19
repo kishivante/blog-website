@@ -3,6 +3,7 @@ import { HeaderClient } from "@/components/site-header-client";
 import { getPublicConfig } from "@/lib/env";
 import { unreadNotificationCount } from "@/services/notification-service";
 import { getSitePresentation } from "@/services/site-service";
+import { canAccessAdmin } from "@/lib/admin-policy";
 
 export async function SiteHeader() {
   const [session, presentation] = await Promise.all([
@@ -20,6 +21,9 @@ export async function SiteHeader() {
               username: session.user.username,
               displayName: session.user.displayName,
               avatar: session.user.avatar,
+              canAccessAdmin: canAccessAdmin(
+                session.user.roles.map(({ role }) => role.code),
+              ),
             }
           : null
       }

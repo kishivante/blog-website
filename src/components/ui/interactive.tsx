@@ -55,13 +55,49 @@ export function Dropdown({
   label: ReactNode;
   children: ReactNode;
 }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const close = () => {
+      if (ref.current) ref.current.open = false;
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!ref.current?.contains(event.target as Node)) close();
+    };
+    const handleFocusIn = (event: FocusEvent) => {
+      if (!ref.current?.contains(event.target as Node)) close();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        close();
+        ref.current?.querySelector<HTMLElement>("summary")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("focusin", handleFocusIn);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("focusin", handleFocusIn);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
-    <details className="uiDropdown">
+    <details className="uiDropdown" ref={ref}>
       <summary>
         {label}
         <ChevronDown size={15} />
       </summary>
-      <div>{children}</div>
+      <div
+        onClick={(event) => {
+          if ((event.target as HTMLElement).closest("a, button")) {
+            ref.current?.removeAttribute("open");
+          }
+        }}
+      >
+        {children}
+      </div>
     </details>
   );
 }

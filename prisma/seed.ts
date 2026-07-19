@@ -227,6 +227,7 @@ async function seedSettings() {
       shadowIntensity: 24,
       headingFont: "Arial, Helvetica, sans-serif",
       bodyFont: "Arial, Helvetica, sans-serif",
+      baseFontSize: 16,
     },
   });
 }

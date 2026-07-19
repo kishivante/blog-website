@@ -127,6 +127,16 @@ export function AdminThemeForm({
           <option>Georgia, serif</option>
         </select>
       </label>
+      <label>
+        Temel yazı boyutu (px)
+        <input
+          name="baseFontSize"
+          type="number"
+          min={14}
+          max={20}
+          defaultValue={theme.baseFontSize}
+        />
+      </label>
       <div
         className="themePreview"
         style={{

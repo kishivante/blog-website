@@ -29,6 +29,7 @@ export function HeaderClient({
     username: string;
     displayName: string | null;
     avatar: string | null;
+    canAccessAdmin: boolean;
   } | null;
   unread: number;
 }) {
@@ -94,6 +95,9 @@ export function HeaderClient({
                 <Link href={`/kullanici/${user.username}`}>Profil</Link>
                 <Link href="/ayarlar">Ayarlar</Link>
                 <Link href="/ayarlar/hesap">Oturumlar</Link>
+                {user.canAccessAdmin ? (
+                  <Link href="/admin">Yönetim paneli</Link>
+                ) : null}
               </Dropdown>
             </>
           ) : (

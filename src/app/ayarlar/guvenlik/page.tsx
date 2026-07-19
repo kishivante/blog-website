@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PageShell } from "@/components/page-shell";
+import { SettingsNav } from "@/components/settings-nav";
 import { AuthForm } from "@/components/auth-form";
 import { createCsrfToken } from "@/server/csrf";
 import { requireUser } from "@/server/authorization";
@@ -20,6 +21,7 @@ export default async function Page() {
       title="Güvenlik ayarları"
       description="Parola, iki adımlı doğrulama ve hesap kurtarma seçenekleri."
     >
+      <SettingsNav />
       <section className="settingsCard">
         <h2>İki adımlı doğrulama</h2>
         {enabled ? (

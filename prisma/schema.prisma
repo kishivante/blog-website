@@ -980,6 +980,7 @@ model ThemeSetting {
   shadowIntensity     Int      @default(20)
   headingFont         String
   bodyFont            String
+  baseFontSize        Int      @default(16)
   updatedAt           DateTime @updatedAt
 }
 

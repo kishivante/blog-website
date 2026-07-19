@@ -35,8 +35,8 @@ export default async function RootLayout({
         )
       : {};
   return (
-    <html lang={config.locale}>
-      <body style={themeStyle(theme)}>
+    <html lang={config.locale} style={themeStyle(theme)}>
+      <body>
         <a className="skipLink" href="#main-content">
           İçeriğe geç
         </a>

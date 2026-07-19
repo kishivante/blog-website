@@ -16,6 +16,11 @@ import {
 import type { FormState } from "@/types/forms";
 import { enforceRateLimit } from "@/server/rate-limit";
 import { storeImage } from "@/services/upload-service";
+import {
+  MAX_BASE_FONT_SIZE,
+  MIN_BASE_FONT_SIZE,
+  SITE_FONT_FAMILIES,
+} from "@/lib/site-typography";
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 const failure = (error: unknown): FormState => ({
@@ -253,6 +258,7 @@ export async function saveThemeAction(
       shadowIntensity: 24,
       headingFont: "Arial, Helvetica, sans-serif",
       bodyFont: "Arial, Helvetica, sans-serif",
+      baseFontSize: 16,
     };
     const data =
       form.get("intent") === "reset"
@@ -286,19 +292,17 @@ export async function saveThemeAction(
               .max(100)
               .parse(form.get("shadowIntensity")),
             headingFont: z
-              .enum([
-                "Arial, Helvetica, sans-serif",
-                "Inter, Arial, sans-serif",
-                "Georgia, serif",
-              ])
+              .enum(SITE_FONT_FAMILIES)
               .parse(text(form, "headingFont")),
             bodyFont: z
-              .enum([
-                "Arial, Helvetica, sans-serif",
-                "Inter, Arial, sans-serif",
-                "Georgia, serif",
-              ])
+              .enum(SITE_FONT_FAMILIES)
               .parse(text(form, "bodyFont")),
+            baseFontSize: z.coerce
+              .number()
+              .int()
+              .min(MIN_BASE_FONT_SIZE)
+              .max(MAX_BASE_FONT_SIZE)
+              .parse(form.get("baseFontSize")),
           };
     const previous = await db.themeSetting.findUnique({
       where: { id: "default" },
@@ -456,17 +460,51 @@ export async function saveSiteSettingsAction(
           .parse(form.get("monthlyUploadQuotaBytes")),
       },
     };
-    const previous = await db.siteSetting.findUnique({
-      where: { id: "default" },
-    });
-    await db.siteSetting.update({ where: { id: "default" }, data });
+    const fontFamily = z
+      .enum(SITE_FONT_FAMILIES)
+      .parse(text(form, "siteFont"));
+    const baseFontSize = z.coerce
+      .number()
+      .int()
+      .min(MIN_BASE_FONT_SIZE)
+      .max(MAX_BASE_FONT_SIZE)
+      .parse(form.get("baseFontSize"));
+    const [previous, previousTheme] = await Promise.all([
+      db.siteSetting.findUnique({ where: { id: "default" } }),
+      db.themeSetting.findUnique({ where: { id: "default" } }),
+    ]);
+    await db.$transaction([
+      db.siteSetting.update({ where: { id: "default" }, data }),
+      db.themeSetting.update({
+        where: { id: "default" },
+        data: {
+          headingFont: fontFamily,
+          bodyFont: fontFamily,
+          baseFontSize,
+        },
+      }),
+    ]);
     await writeAdminAudit(
       session.userId,
       "SITE_SETTINGS_UPDATED",
       "SiteSetting",
       "default",
-      previous ?? undefined,
-      data,
+      previous
+        ? {
+            site: previous,
+            typography: previousTheme
+              ? {
+                  headingFont: previousTheme.headingFont,
+                  bodyFont: previousTheme.bodyFont,
+                  baseFontSize: previousTheme.baseFontSize,
+                }
+              : null,
+          }
+        : undefined,
+      {
+        site: data,
+        typography: { fontFamily, baseFontSize },
+      },
       context,
     );
     revalidatePath("/", "layout");
