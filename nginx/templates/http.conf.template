@@ -1,0 +1,19 @@
+limit_req_zone $binary_remote_addr zone=general:10m rate=20r/s;
+limit_req_zone $binary_remote_addr zone=sensitive:10m rate=5r/m;
+
+server {
+  listen 80;
+  server_name ${APP_DOMAIN};
+  server_tokens off;
+
+  location ^~ /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    default_type text/plain;
+  }
+
+  location / {
+    return 503;
+  }
+
+  location ~ /\.(?!well-known) { return 404; }
+}

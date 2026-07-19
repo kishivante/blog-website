@@ -1,0 +1,18 @@
+services:
+  app:
+    image: ${APP_IMAGE:-scarlet-satellite-blog:latest}
+    build:
+      context: .
+      target: runner
+  worker:
+    image: ${APP_IMAGE:-scarlet-satellite-blog:latest}
+    build:
+      context: .
+      target: runner
+  nginx:
+    volumes:
+      - ./nginx/templates:/etc/nginx/scarlet-templates:ro
+      - ./nginx/proxy_params:/etc/nginx/proxy_params:ro
+      - ./docker/nginx-entrypoint.sh:/scarlet-nginx-entrypoint.sh:ro
+      - certbot_www:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro
